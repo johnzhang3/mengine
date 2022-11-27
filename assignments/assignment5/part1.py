@@ -19,7 +19,14 @@ from scipy import optimize
 
 
 def contact_screw_3d(contact_points: np.ndarray, contact_normals: np.ndarray) -> np.ndarray:
-
+    wrench = []
+    for i in range(contact_points.shape[0]):
+        normal = np.array(contact_normals[i])
+        C = normal / np.linalg.norm(normal)
+        C0 = np.cross(contact_points[i], normal)
+        wrench_i = np.array([C[0], C[1], C[2], C0[0], C0[1], C0[2]])
+        wrench.append(wrench_i)
+    wrench = np.array(wrench)
     return wrench
 
 #########################################################################
@@ -38,6 +45,15 @@ def friction_cone_3d(contact_points: np.ndarray, contact_normals: np.ndarray, mu
     # your code here
     #
     #
+    contact_points_FC = []
+    contact_normals_FC = []
+    N = contact_points.shape[0]
+    cone_angle = np.arctan(mu)
+
+    for i in range(N):
+        pass
+    
+
     return contact_points_FC, contact_normals_FC
 
 
@@ -47,7 +63,20 @@ def friction_cone_3d(contact_points: np.ndarray, contact_normals: np.ndarray, mu
 # z_max: maximum objective function value at optimal point; float
 #########################################################################
 def is_force_closure(w: np.ndarray) -> tuple:
+    is_FC = False
 
+    # W = set of normalized contact screws
+    wc = 1.0 / len(w) * np.sum(w, axis=0)
+    T = w - wc
+    p = lambda x: scipy.optimize.linprog(x, A_ub=T, b_ub=np.ones(len(w))).fun
+    print('W:', w, '\n', 'wc:', wc, '\n', 'T:', T, '\n', 'T rank:', np.linalg.matrix_rank(T), '\n', 'p(-wc):', -p(wc))
+    if np.linalg.matrix_rank(T) < 6: # "< 3" for planar, "< 6" for 3D
+        is_FC = False
+    else:
+        # NOTE: linprog does minimize, but we need maximize, so compute -p(wc) rather than p(-wc)
+        is_FC = -p(wc) < 1
+    z_max = -p(wc)
+    # return -p(wc) < 1
     return is_FC, z_max
 
 
@@ -95,7 +124,7 @@ def main(testcase):
     wrench = contact_screw_3d(contact_points, contact_normals)
 
     # draw contact screws
-    draw_contact_screw(contact_points, wrench)
+    # draw_contact_screw(contact_points, wrench)
 
     # force closure test (1: true, 0: false)
     is_FC, z_max = is_force_closure(wrench)
@@ -110,7 +139,7 @@ def main(testcase):
     wrench_friction = contact_screw_3d(contact_points_FC, contact_normals_FC)
 
     # draw contact screw
-    draw_contact_screw(contact_points_FC, contact_normals_FC, n_friction_cone)
+    # draw_contact_screw(contact_points_FC, contact_normals_FC, n_friction_cone)
 
     # force closure test (1: true, 0: false)
     is_FC_friction, z_max_friction = is_force_closure(wrench_friction)
@@ -133,6 +162,6 @@ if __name__ == "__main__":
         testcase = args.testcase
     except:
         print("No testcase specified. Running default testcase 0.")
-        testcase = 0
+        testcase = 1
 
     main(testcase)

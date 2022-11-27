@@ -38,15 +38,15 @@ w2 = contact_screw_2d(p2, n2)
 w3 = contact_screw_2d(p3, n3)
 w4 = contact_screw_2d(p4, n4)
 
-print(w1, w2, w3, w4)
-print('Force closure:', is_force_closure([w1, w2, w3, w4]))
-exit()
+# print(w1, w2, w3, w4)
+# print('Force closure:', is_force_closure([w1, w2, w3, w4]))
+# exit()
 
-# If we change the location of contact point 1 from [0,-1] to [-1,-1], we no longer have force closure!
-# If you look at the wrenches in wrench space, w1, w2, and w4 all lie on the n_0z = -1 plane. See lecture 13 figure. Origin is on boundary on convex hull, but not in interior!
-w1 = contact_screw_2d([-1, -1], [0, 1])
-print('Force closure:', is_force_closure([w1, w2, w3, w4]))
-exit()
+# # If we change the location of contact point 1 from [0,-1] to [-1,-1], we no longer have force closure!
+# # If you look at the wrenches in wrench space, w1, w2, and w4 all lie on the n_0z = -1 plane. See lecture 13 figure. Origin is on boundary on convex hull, but not in interior!
+# w1 = contact_screw_2d([-1, -1], [0, 1])
+# print('Force closure:', is_force_closure([w1, w2, w3, w4]))
+# exit()
 
 
 mu = 0.1
